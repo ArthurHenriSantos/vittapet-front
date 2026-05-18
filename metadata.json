@@ -1,0 +1,8 @@
+{
+  "name": "VittaPet - Clínica Veterinária",
+  "description": "Cuidado que conecta. Amor que permanece. Sistema de gestão para pets e consultas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

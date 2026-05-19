@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, AlertCircle, Calendar } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
@@ -34,14 +34,34 @@ export default function Appointments() {
   const currentOwnerId = currentUser?.ownerId;
 
   const filteredPets = isOwner ? pets.filter(p => p.ownerId === currentOwnerId) : pets;
+  
+  // Show only appointments where this veterinarian is selected
   const filteredAppointments = isOwner
     ? appointments.filter(app => {
         const pet = pets.find(p => p.id === app.petId);
         return pet?.ownerId === currentOwnerId;
       })
-    : appointments;
+    : isVet
+      ? appointments.filter(app => app.vetId === currentUser?.id)
+      : appointments;
 
   const [formData, setFormData] = useState({ petId: '', vetId: '', date: '', time: '', reason: '' });
+
+  // Get booked time slots for the selected vet and date (ignoring cancelled appointments)
+  const bookedSlotsForSelectedVetAndDate = formData.vetId && formData.date
+    ? appointments
+        .filter(app => app.vetId === formData.vetId && app.date === formData.date && app.status !== 'Cancelado')
+        .map(app => app.time)
+    : [];
+
+  const availableTimeSlots = timeSlots.filter(slot => !bookedSlotsForSelectedVetAndDate.includes(slot));
+
+  // Reset selected time if it becomes unavailable due to changing the vet or date
+  useEffect(() => {
+    if (formData.time && !availableTimeSlots.includes(formData.time)) {
+      setFormData(prev => ({ ...prev, time: '' }));
+    }
+  }, [availableTimeSlots, formData.time]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +127,7 @@ export default function Appointments() {
                   required
                 >
                   <option value="">Selecione o horário...</option>
-                  {timeSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+                  {availableTimeSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
                 </select>
               </div>
 

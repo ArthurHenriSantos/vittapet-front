@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Logo } from '../../components/Logo';
 import { useAuth } from '../../hooks/useAuth';
 import { useData } from '../../hooks/useData';
-import { User as AuthUser } from '../../types';
+// 1. Importe o PNG (ajuste o caminho ../../assets/ se você colocou em outra pasta)
+import logoImg from '../../components/vittapet_logo.png'; 
 
 export default function Login() {
   const { handleLogin, registerAndLogin } = useAuth();
@@ -51,7 +51,12 @@ export default function Login() {
         className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-slate-200"
       >
         <div className="flex flex-col items-center mb-8">
-          <Logo size="lg" showSlogan className="items-center text-center" />
+          {/* 2. Tag img substituindo o componente Logo */}
+          <img 
+            src={logoImg} 
+            alt="Vittapet" 
+            className="h-24 w-auto object-contain mb-2" 
+          />
         </div>
 
         <div className="flex p-1 bg-slate-100 rounded-xl mb-6">

@@ -74,7 +74,7 @@ export default function Dashboard() {
           <StatCard title="Total de Donos" value={filteredOwners.length} icon={<User className="text-blue-500" />} />
         )}
         <StatCard title="Seus Pets" value={filteredPets.length} icon={<Dog className="text-vittagreen" />} />
-        <StatCard title="Consultas Agendadas" value={filteredAppointments.length} icon={<Calendar className="text-vittablue" />} />
+        <StatCard title="Consultas Agendadas" value={myAppointments.length} icon={<Calendar className="text-vittablue" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

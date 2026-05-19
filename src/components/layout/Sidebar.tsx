@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Dog, Calendar, LogOut, ShieldCheck, UserCircle } from 'lucide-react';
-import { Logo } from '../Logo';
+import logoImg from '../vittapet_logo_sidebar.png';
 import { useAuth } from '../../hooks/useAuth';
 
 function SidebarLink({ active, onClick, icon, label }: {
@@ -32,7 +32,14 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
       <div className="p-6">
-        <Logo showSlogan size="md" />
+        <img 
+          src={logoImg} 
+          alt="VittaPet" 
+          className="h-12 w-auto object-contain" 
+        />
+        <p className="text-[10px] text-slate-400 font-medium tracking-tight mt-1.5 ml-0.5 leading-tight uppercase font-sans">
+          Cuidado que conecta. Amor que permanece.
+        </p>
       </div>
 
       <nav className="flex-1 px-4 space-y-1">

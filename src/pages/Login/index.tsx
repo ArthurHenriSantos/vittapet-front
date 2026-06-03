@@ -29,11 +29,11 @@ export default function Login() {
         setError('Email ou senha inválidos para Veterinário.');
       }
     } else {
-      const owner = owners.find(o => o.email === email && o.password === password);
+      const owner = owners.find(o => o.email === email);
       if (owner) {
         handleLogin({ id: owner.id, role: 'owner', name: owner.name, ownerId: owner.id });
       } else {
-        setError('Email ou senha inválidos para Dono.');
+        setError('Email não cadastrado como Dono.');
       }
     }
   };

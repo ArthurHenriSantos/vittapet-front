@@ -42,3 +42,14 @@ export interface Appointment {
   reason: string;
   status: 'Pendente' | 'Em Andamento' | 'Concluído' | 'Cancelado';
 }
+
+export interface MedicalRecord {
+  id: string;
+  diagnosis: string;
+  treatment: string;
+  prescriptions: string[];
+  appointmentId: string;
+  followUpDate?: string;
+  recordedAt?: string;
+}
+

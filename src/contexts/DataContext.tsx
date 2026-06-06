@@ -83,7 +83,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const loadAllData = useCallback(async () => {
     try {
       // 1. Carregar Veterinários
-      const vetsRes = await fetch(`${APPT_API_URL}/Veterinarian`);
+      const vetsRes = await fetch(`${APPT_API_URL}/GetAllVeterinarian`);
       if (vetsRes.ok) {
         const data = await vetsRes.json();
         setVets(data.map((v: any) => ({
@@ -95,7 +95,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 2. Carregar Donos
-      const ownersRes = await fetch(`${REG_API_URL}/Owner`);
+      const ownersRes = await fetch(`${REG_API_URL}/GetAllOwner`);
       if (ownersRes.ok) {
         const data = await ownersRes.json();
         setOwners(data.map((o: any) => ({
@@ -108,7 +108,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 3. Carregar Pets
-      const petsRes = await fetch(`${REG_API_URL}/Pet`);
+      const petsRes = await fetch(`${REG_API_URL}/GetAllPet`);
       if (petsRes.ok) {
         const data = await petsRes.json();
         setPets(data.map((p: any) => ({
@@ -125,7 +125,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 4. Carregar Consultas
-      const apptsRes = await fetch(`${APPT_API_URL}/Appointment`);
+      const apptsRes = await fetch(`${APPT_API_URL}/GetAllAppointment`);
       if (apptsRes.ok) {
         const data = await apptsRes.json();
         setAppointments(data.map((a: any) => ({
@@ -165,7 +165,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const addOwner = useCallback(async (owner: Omit<Owner, 'id'>) => {
     try {
-      const res = await fetch(`${REG_API_URL}/Owner`, {
+      const res = await fetch(`${REG_API_URL}/CreateOwner`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -192,7 +192,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const addPet = useCallback(async (pet: Omit<Pet, 'id'>) => {
     try {
       const birthDateIso = pet.birthDate ? new Date(pet.birthDate).toISOString() : new Date().toISOString();
-      const res = await fetch(`${REG_API_URL}/Pet`, {
+      const res = await fetch(`${REG_API_URL}/CreatePet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -220,7 +220,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updatePet = useCallback(async (petId: string, name: string, weightKg: number, isActive: boolean) => {
     try {
-      const res = await fetch(`${REG_API_URL}/Pet/${petId}`, {
+      const res = await fetch(`${REG_API_URL}/UpdatePet/${petId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -244,7 +244,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deletePet = useCallback(async (petId: string) => {
     try {
-      const res = await fetch(`${REG_API_URL}/Pet/${petId}`, {
+      const res = await fetch(`${REG_API_URL}/DeletePet/${petId}`, {
         method: 'DELETE',
       });
 
@@ -268,7 +268,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const scheduledStart = new Date(`${app.date}T${app.time}:00`);
       const scheduledEnd = new Date(scheduledStart.getTime() + 30 * 60 * 1000); // 30 minutos de duração
 
-      const res = await fetch(`${APPT_API_URL}/Appointment`, {
+      const res = await fetch(`${APPT_API_URL}/CreateAppointment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -326,9 +326,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     try {
       let endpoint = '';
       if (status === 'Em Andamento') {
-        endpoint = `${APPT_API_URL}/Appointment/${id}/start`;
+        endpoint = `${APPT_API_URL}/StartAppointment/${id}`;
       } else if (status === 'Concluído') {
-        endpoint = `${APPT_API_URL}/Appointment/${id}/complete`;
+        endpoint = `${APPT_API_URL}/CompleteAppointment/${id}`;
       } else if (status === 'Cancelado') {
         await deleteAppointment(id);
         return;
@@ -354,7 +354,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteAppointment = useCallback(async (id: string) => {
     try {
-      const res = await fetch(`${APPT_API_URL}/Appointment/${id}`, {
+      const res = await fetch(`${APPT_API_URL}/DeleteAppointment/${id}`, {
         method: 'DELETE',
       });
 
@@ -372,7 +372,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateOwnerProfile = useCallback(async (ownerId: string, email: string, phone: string, password?: string) => {
     try {
-      const res = await fetch(`${REG_API_URL}/Owner/${ownerId}`, {
+      const res = await fetch(`${REG_API_URL}/UpdateOwner/${ownerId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -396,7 +396,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateVetProfile = useCallback(async (vetId: string, email: string, password?: string, specialties?: string[]) => {
     try {
-      const res = await fetch(`${APPT_API_URL}/Veterinarian/${vetId}`, {
+      const res = await fetch(`${APPT_API_URL}/UpdateVeterinarian/${vetId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

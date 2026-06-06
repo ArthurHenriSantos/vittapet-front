@@ -22,8 +22,8 @@ export default function Login() {
     setError('');
 
     const endpoint = role === 'vet' 
-      ? 'http://localhost:5289/Veterinarian/login' 
-      : 'http://localhost:5290/Owner/login';
+      ? 'http://localhost:5289/LoginVeterinarian' 
+      : 'http://localhost:5290/LoginOwner';
 
     try {
       const res = await fetch(endpoint, {

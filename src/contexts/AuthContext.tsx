@@ -5,11 +5,11 @@ import { DataContext } from './DataContext';
 
 interface AuthContextType {
   currentUser: AuthUser | null;
-  activeTab: 'dashboard' | 'owners' | 'pets' | 'appointments';
-  setActiveTab: React.Dispatch<React.SetStateAction<'dashboard' | 'owners' | 'pets' | 'appointments'>>;
+  activeTab: 'dashboard' | 'owners' | 'pets' | 'appointments' | 'profile';
+  setActiveTab: React.Dispatch<React.SetStateAction<'dashboard' | 'owners' | 'pets' | 'appointments' | 'profile'>>;
   handleLogin: (user: AuthUser) => void;
   handleLogout: () => void;
-  registerAndLogin: (data: any, role: 'vet' | 'owner') => void;
+  registerAndLogin: (data: any, role: 'vet' | 'owner') => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const showNotification = notifCtx?.showNotification ?? (() => {});
 
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'owners' | 'pets' | 'appointments'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'owners' | 'pets' | 'appointments' | 'profile'>('dashboard');
 
   const handleLogin = useCallback((user: AuthUser) => {
     setCurrentUser(user);
@@ -33,26 +33,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     showNotification('Sessão encerrada.');
   }, [showNotification]);
 
-  const registerAndLogin = useCallback((data: any, role: 'vet' | 'owner') => {
+  const registerAndLogin = useCallback(async (data: any, role: 'vet' | 'owner') => {
     if (!dataCtx) return;
-    const { owners, setOwners, vets, setVets } = dataCtx;
+    const { loadAllData } = dataCtx;
 
     if (role === 'owner') {
-      if (owners.some(o => o.cpf === data.cpf)) {
-        showNotification('Este CPF já está cadastrado!', 'error');
-        return;
+      try {
+        const res = await fetch('http://localhost:5290/Owner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: data.name,
+            cpf: data.cpf,
+            email: data.email,
+            password: data.password,
+            phone: data.phone,
+          }),
+        });
+
+        if (res.ok) {
+          const ownerId = await res.json(); // GUID gerado
+          await loadAllData();
+          handleLogin({ id: ownerId, role: 'owner', name: data.name, ownerId: ownerId });
+        } else {
+          const errMsg = await res.text();
+          showNotification(errMsg || 'Erro ao realizar cadastro.', 'error');
+        }
+      } catch (error) {
+        showNotification('Erro de rede ao cadastrar dono.', 'error');
       }
-      const newOwner = { ...data, id: crypto.randomUUID() };
-      setOwners(prev => [...prev, newOwner]);
-      handleLogin({ id: newOwner.id, role: 'owner', name: newOwner.name, ownerId: newOwner.id });
     } else {
-      if (vets.some(v => v.email === data.email)) {
-        showNotification('Este email já está cadastrado!', 'error');
-        return;
+      try {
+        const res = await fetch('http://localhost:5289/Veterinarian', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName: data.name,
+            crmv: data.crmv || '00000',
+            email: data.email,
+            password: data.password,
+            specialties: data.specialty ? [data.specialty] : [],
+          }),
+        });
+
+        if (res.ok) {
+          const vetId = await res.json(); // GUID gerado
+          await loadAllData();
+          handleLogin({ id: vetId, role: 'vet', name: data.name });
+        } else {
+          const errMsg = await res.text();
+          showNotification(errMsg || 'Erro ao realizar cadastro.', 'error');
+        }
+      } catch (error) {
+        showNotification('Erro de rede ao cadastrar veterinário.', 'error');
       }
-      const newVet = { ...data, id: crypto.randomUUID() };
-      setVets(prev => [...prev, newVet]);
-      handleLogin({ id: newVet.id, role: 'vet', name: newVet.name });
     }
   }, [dataCtx, showNotification, handleLogin]);
 

@@ -14,27 +14,37 @@ export default function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [regData, setRegData] = useState({ name: '', cpf: '', email: '', phone: '', password: '', specialty: '' });
+  const [regData, setRegData] = useState({ name: '', cpf: '', email: '', phone: '', password: '', specialty: '', crmv: '' });
   const [error, setError] = useState('');
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (role === 'vet') {
-      const vet = vets.find(v => v.email === email && v.password === password);
-      if (vet) {
-        handleLogin({ id: vet.id, role: 'vet', name: vet.name });
+    const endpoint = role === 'vet' 
+      ? 'http://localhost:5289/Veterinarian/login' 
+      : 'http://localhost:5290/Owner/login';
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (res.ok) {
+        const user = await res.json();
+        if (role === 'vet') {
+          handleLogin({ id: user.id, role: 'vet', name: user.fullName });
+        } else {
+          handleLogin({ id: user.id, role: 'owner', name: user.fullName, ownerId: user.id });
+        }
       } else {
-        setError('Email ou senha inválidos para Veterinário.');
+        const text = await res.text();
+        setError(text || 'E-mail ou senha inválidos.');
       }
-    } else {
-      const owner = owners.find(o => o.email === email && o.password === password);
-      if (owner) {
-        handleLogin({ id: owner.id, role: 'owner', name: owner.name, ownerId: owner.id });
-      } else {
-        setError('Email ou senha inválidos para Dono.');
-      }
+    } catch (err) {
+      setError('Erro ao se conectar ao servidor de autenticação.');
     }
   };
 
@@ -110,15 +120,13 @@ export default function Login() {
               Entrar como {role === 'vet' ? 'Veterinário' : 'Dono'}
             </button>
 
-            {role === 'owner' && (
-              <button
-                type="button"
-                onClick={() => setIsRegistering(true)}
-                className="w-full text-vittagreen text-sm font-semibold hover:underline"
-              >
-                Não tem conta? Cadastre-se aqui
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setIsRegistering(true)}
+              className="w-full text-vittagreen text-sm font-semibold hover:underline"
+            >
+              Não tem conta? Cadastre-se aqui
+            </button>
           </form>
         ) : (
           <form onSubmit={handleRegister} className="space-y-4">
@@ -129,12 +137,21 @@ export default function Login() {
                 value={regData.name} onChange={e => setRegData({ ...regData, name: e.target.value })}
                 required
               />
-              <input
-                type="text" placeholder="CPF"
-                className="w-full p-4 rounded-xl border-2 border-slate-100 outline-none focus:border-vittagreen text-sm"
-                value={regData.cpf} onChange={e => setRegData({ ...regData, cpf: e.target.value })}
-                required
-              />
+              {role === 'owner' ? (
+                <input
+                  type="text" placeholder="CPF"
+                  className="w-full p-4 rounded-xl border-2 border-slate-100 outline-none focus:border-vittagreen text-sm"
+                  value={regData.cpf} onChange={e => setRegData({ ...regData, cpf: e.target.value })}
+                  required
+                />
+              ) : (
+                <input
+                  type="text" placeholder="CRMV"
+                  className="w-full p-4 rounded-xl border-2 border-slate-100 outline-none focus:border-vittagreen text-sm"
+                  value={regData.crmv} onChange={e => setRegData({ ...regData, crmv: e.target.value })}
+                  required
+                />
+              )}
             </div>
             <input
               type="email" placeholder="Email"
@@ -148,11 +165,19 @@ export default function Login() {
               value={regData.password} onChange={e => setRegData({ ...regData, password: e.target.value })}
               required
             />
-            <input
-              type="text" placeholder="Telefone"
-              className="w-full p-4 rounded-xl border-2 border-slate-100 outline-none focus:border-vittagreen text-sm"
-              value={regData.phone} onChange={e => setRegData({ ...regData, phone: e.target.value })}
-            />
+            {role === 'owner' ? (
+              <input
+                type="text" placeholder="Telefone"
+                className="w-full p-4 rounded-xl border-2 border-slate-100 outline-none focus:border-vittagreen text-sm"
+                value={regData.phone} onChange={e => setRegData({ ...regData, phone: e.target.value })}
+              />
+            ) : (
+              <input
+                type="text" placeholder="Especialidade (ex: Cardiologia)"
+                className="w-full p-4 rounded-xl border-2 border-slate-100 outline-none focus:border-vittagreen text-sm"
+                value={regData.specialty} onChange={e => setRegData({ ...regData, specialty: e.target.value })}
+              />
+            )}
             <button
               type="submit"
               className="w-full py-4 bg-vittagreen text-white rounded-xl font-bold hover:bg-emerald-700 transition-all font-sans shadow-lg shadow-vittagreen/20"

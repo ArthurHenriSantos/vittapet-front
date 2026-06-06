@@ -69,6 +69,12 @@ export function Sidebar() {
           icon={<Calendar size={20} />}
           label="Consultas"
         />
+        <SidebarLink
+          active={activeTab === 'profile'}
+          onClick={() => setActiveTab('profile')}
+          icon={<UserCircle size={20} />}
+          label="Meu Perfil"
+        />
       </nav>
 
       <div className="p-4 border-t border-slate-200">

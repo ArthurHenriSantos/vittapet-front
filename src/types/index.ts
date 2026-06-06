@@ -30,7 +30,10 @@ export interface Pet {
   name: string;
   species: string;
   breed: string;
-  age: number;
+  birthDate: string;
+  weightKg: number;
+  isActive: boolean;
+  age?: number;
 }
 
 export interface Appointment {
@@ -41,4 +44,16 @@ export interface Appointment {
   time: string;
   reason: string;
   status: 'Pendente' | 'Em Andamento' | 'Concluído' | 'Cancelado';
+  notes?: string;
 }
+
+export interface MedicalRecord {
+  id: string;
+  appointmentId: string;
+  diagnosis: string;
+  treatment: string;
+  prescriptions: string[];
+  followUpDate?: string;
+  recordedAt: string;
+}
+

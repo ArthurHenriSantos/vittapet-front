@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import Owners from './pages/Owners';
 import Pets from './pages/Pets';
 import Appointments from './pages/Appointments';
+import Profile from './pages/Profile';
 
 function AppRoutes() {
   const { currentUser, activeTab } = useAuth();
@@ -23,6 +24,7 @@ function AppRoutes() {
       {activeTab === 'owners' && currentUser.role === 'vet' && <Owners />}
       {activeTab === 'pets' && <Pets />}
       {activeTab === 'appointments' && <Appointments />}
+      {activeTab === 'profile' && <Profile />}
     </MainLayout>
   );
 }
